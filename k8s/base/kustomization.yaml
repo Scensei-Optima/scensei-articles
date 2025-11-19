@@ -1,0 +1,8 @@
+resources:
+  - storage_class_efs.yaml
+  - storage_class_ebs.yaml
+
+vars:
+  - name: EFS_FILESYSTEM_ID
+    fieldref:
+      fieldpath: data.EFS_FILESYSTEM_ID

@@ -63,3 +63,18 @@ resource "null_resource" "update_kubeconfig" {
     command = "aws eks update-kubeconfig --region eu-north-1 --name ${module.eks.cluster_name}"
   }
 }
+
+resource "local_file" "efs_configmap" {
+  filename = "${path.module}/k8s/overlays/demo/efs-config.auto.yaml"
+
+  depends_on = [null_resource.update_kubeconfig]
+
+  content = <<EOF
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: efs-config
+data:
+  EFS_FILESYSTEM_ID: "${aws_efs_file_system.efs.id}"
+EOF
+}

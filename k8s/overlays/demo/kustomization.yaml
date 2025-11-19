@@ -1,0 +1,9 @@
+resources:
+  - ../../base
+
+configMapGenerator:
+  - name: efs-config
+    literals:
+      - EFS_FILESYSTEM_ID=REPLACED_BY_TERRAFORM
+configurations:
+  - varref.yaml
