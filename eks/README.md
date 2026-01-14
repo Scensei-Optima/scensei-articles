@@ -61,6 +61,7 @@ When deploying Optima in a customer-managed VPC, security is not just about peri
 Isolation, and Encryption. Our reference architecture implements the following "Defense in Depth" layers:
 
 1. **Network Isolation: The Private VPC**
+
 In this setup, we prioritize a "Private-First" networking model.
 
 Zero Direct Access: All EKS Worker Nodes and EFS Mount Targets are placed in Private Subnets. They do not have public
@@ -74,6 +75,7 @@ AWS PrivateLink (VPC Endpoints) for services like ECR, S3, and STS. This allows 
 with zero path to the public internet.
 
 2. **Identity: IRSA over Hard-coded Keys**
+
 One of the most significant security upgrades in this architecture is the use of IAM Roles for Service Accounts (IRSA).
 
 Temporary Credentials: Instead of baking AWS Access Keys into your application (which risk being leaked), 
@@ -83,6 +85,7 @@ Least Privilege: Each storage driver has a dedicated IAM role (via our ebs_csi_i
 grants only the specific permissions needed to mount volumes—nothing more.
 
 3. **Traffic Control: Stateful Security Groups**
+
 We use AWS Security Groups as a virtual firewall for our storage layer.
 
 EFS Protection: The efs-sg security group acts as a gatekeeper for your simulation data. It is configured with an 
@@ -92,6 +95,7 @@ Stateful Flow: Because Security Groups are stateful, we don't need to open wide 
 the firewall automatically tracks simulation requests and allows the data to flow back to the authorized pods.
 
 4. **Encryption: Data at Rest**
+
 Security compliance often requires that data never touches a physical disk in plaintext.
 
 EFS Encryption: In our aws_efs_file_system resource, encrypted = true is set by default. 
@@ -160,8 +164,31 @@ efs-scenarios           Bound    pvc-***                                    5Gi 
 efs-trajectories        Bound    pvc-***                                    5Gi        RWX            efs-sc         <unset>                 5s
 ```
 
+## Note on EFS-based PVCs
+
+As it is shown above, the capacity of the PVCs is set to `5Gi` each. It is however a 'dummy value', not respected by the
+underlying EFS driver. The EFS is elastic by nature - it shrinks and expands as needed. The manifest schema requires 
+however, to pass the value for storage request - hence the `5Gi` in the `CAPACITY` field. It is important to remember
+that this does not preclude the PVCs from accommodating larger assets.
+
 
 ## Infrastructure deletion
 
 If you want to remove the resources created in this guide, run the `terraform destroy` command first in the `eks/k8s` 
 directory and then in `eks/`.
+
+
+## Conclusion
+
+Throughout this reference architecture, we have addressed the three primary pillars of a successful customer-managed deployment:
+
+Networking: Establishing a private, Multi-AZ foundation that balances security with the practical need for container image delivery.
+
+Storage: Implementing a hybrid strategy using EBS for low-latency database performance and EFS for shared, concurrent file access.
+
+Identity: Moving away from static keys in favor of IAM Roles for Service Accounts (IRSA), ensuring that your simulation 
+workloads operate under the principle of least privilege.
+
+While this guide provides the foundational "plumbing," the true power of this setup lies in its flexibility. 
+Whether you choose to further harden the network with VPC Endpoints or scale your simulation nodes using 
+specialized EC2 instances, you now have a repeatable starting point.
