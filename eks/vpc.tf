@@ -3,6 +3,11 @@ data "aws_availability_zones" "available" {}
 # -------------------------------
 # VPC (minimal: 3 private + 3 public subnets)
 # -------------------------------
+
+# Adjust CIDR as needed
+# We use public subnets to simplify image pulling from ECR
+# In a more air-gapped scenario one would host their own registry inside the cluster
+
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "6.5.0"
@@ -16,9 +21,4 @@ module "vpc" {
 
   enable_nat_gateway = true
   single_nat_gateway = true
-
-  tags = {
-    Environment = "dev"
-    Project     = "optima"
-  }
 }
