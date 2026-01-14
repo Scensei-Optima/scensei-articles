@@ -182,11 +182,11 @@ directory and then in `eks/`.
 
 Throughout this reference architecture, we have addressed the three primary pillars of a successful customer-managed deployment:
 
-Networking: Establishing a private, Multi-AZ foundation that balances security with the practical need for container image delivery.
+- Networking: Establishing a private, Multi-AZ foundation that balances security with the practical need for container image delivery.
 
-Storage: Implementing a hybrid strategy using EBS for low-latency database performance and EFS for shared, concurrent file access.
+- Storage: Implementing a hybrid strategy using EBS for low-latency database performance and EFS for shared, concurrent file access.
 
-Identity: Moving away from static keys in favor of IAM Roles for Service Accounts (IRSA), ensuring that your simulation 
+- Identity: Moving away from static keys in favor of IAM Roles for Service Accounts (IRSA), ensuring that your simulation 
 workloads operate under the principle of least privilege.
 
 While this guide provides the foundational "plumbing," the true power of this setup lies in its flexibility. 
