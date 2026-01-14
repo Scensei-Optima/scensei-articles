@@ -1,7 +1,7 @@
 variable "efs_creation_token" {
-  type = string
+  type        = string
   description = "Creation token for the EFS"
-  default = "optima-efs"
+  default     = "optima-efs"
 }
 
 variable "should_update_kubeconfig" {
@@ -11,13 +11,13 @@ variable "should_update_kubeconfig" {
 }
 
 variable "cluster_name" {
-  type = string
+  type        = string
   description = "Name of the EKS cluster"
-  default = "optima"
+  default     = "optima"
 }
 
 variable "kubernetes_version" {
-  type = string
+  type        = string
   description = "K8s version for the EKS cluster"
-  default = "1.34"
+  default     = "1.34"
 }
