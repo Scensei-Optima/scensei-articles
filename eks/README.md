@@ -129,6 +129,23 @@ terraform init && terraform apply
 ```
 
 After the command finishes confirm the success by running:
+
+```shell
+kubectl get storageclass
+```
+
+with expected output similar to:
+
+```terminaloutput
+NAME     PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
+ebs-sc   ebs.csi.aws.com         Delete          WaitForFirstConsumer   true                   7s
+efs-sc   efs.csi.aws.com         Retain          Immediate              true                   7s
+...
+```
+
+The `ebs-sc` and `efs-sc` are Kubernetes `StorageClasses` for EBS and EFS volumes respectively.
+
+To confirm correct PVC creation run:
  
 ```shell
 kubectl get pvc -n scensei
@@ -138,8 +155,8 @@ This should yield output similar to:
 
 ```terminaloutput
 NAME                    STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
-efs-scenarios           Bound    pvc-***                                    5Gi        RWX            efs-sc         <unset>                 4s
-efs-logs                Bound    pvc-***                                    5Gi        RWX            efs-sc         <unset>                 5s
+efs-logs                Bound    pvc-***                                    5Gi        RWX            efs-sc         <unset>                 4s
+efs-scenarios           Bound    pvc-***                                    5Gi        RWX            efs-sc         <unset>                 5s
 efs-trajectories        Bound    pvc-***                                    5Gi        RWX            efs-sc         <unset>                 5s
 ```
 
