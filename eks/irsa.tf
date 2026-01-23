@@ -2,6 +2,7 @@
 
 module "ebs_csi_irsa" {
   source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
+  version = "~> 6.0"
 
   name                  = "ebs-csi"
   attach_ebs_csi_policy = true
@@ -16,6 +17,7 @@ module "ebs_csi_irsa" {
 
 module "efs_csi_irsa" {
   source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
+  version = "~> 6.0"
 
   name                  = "efs-csi"
   attach_efs_csi_policy = true
