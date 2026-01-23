@@ -1,7 +1,7 @@
 # This is a game changer for seamless access to EFS and EBS from the EKS cluster
 
 module "ebs_csi_irsa" {
-  source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
   version = "~> 6.0"
 
   name                  = "ebs-csi"
@@ -16,7 +16,7 @@ module "ebs_csi_irsa" {
 }
 
 module "efs_csi_irsa" {
-  source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
   version = "~> 6.0"
 
   name                  = "efs-csi"
