@@ -31,39 +31,39 @@ import (
 func main() {
 	// 1. Define CLI Flags
 	localPort := flag.Int("local", 8080, "The local port to bind to")
-    namespace := flag.String("n", "default", "The Kubernetes namespace")
-    label := flag.String("l", "", "The label selector for pods")
+	namespace := flag.String("n", "default", "The Kubernetes namespace")
+	label := flag.String("l", "", "The label selector for pods")
 	remotePortFlag := flag.Int("remote", 0, "The remote port (overrides pod spec)")
 	attachMode := flag.Bool("attach", false, "Execute an interactive shell in the pod instead of port-forwarding")
 	logMode := flag.Bool("logs", false, "Stream logs from the pod")
 
-    flag.Parse()
+	flag.Parse()
 
-    // Mutual Exclusivity Check
-    if *attachMode && *logMode {
-        fmt.Println("❌ Error: You cannot use -attach and -logs at the same time.")
-        os.Exit(1)
-    }
+	// Mutual Exclusivity Check
+	if *attachMode && *logMode {
+		fmt.Println("❌ Error: You cannot use -attach and -logs at the same time.")
+		os.Exit(1)
+	}
 
-    // 2. Setup Kubernetes Client (Standard boilerplate)
-    kubeconfig := filepath.Join(os.Getenv("HOME"), ".kube", "config")
-    config, _ := clientcmd.BuildConfigFromFlags("", kubeconfig)
-    clientset, _ := kubernetes.NewForConfig(config)
+	// 2. Setup Kubernetes Client (Standard boilerplate)
+	kubeconfig := filepath.Join(os.Getenv("HOME"), ".kube", "config")
+	config, _ := clientcmd.BuildConfigFromFlags("", kubeconfig)
+	clientset, _ := kubernetes.NewForConfig(config)
 
-    // 3. Fetch Pods using the dereferenced pointers
-    fmt.Printf("Searching in namespace: %s\n", *namespace)
+	// 3. Fetch Pods using the dereferenced pointers
+	fmt.Printf("Searching in namespace: %s\n", *namespace)
 
 	var lOpts metav1.ListOptions
-	
+
 	if *label != "" {
 		fmt.Printf("> Using label filter: \"%s\"\n", *label)
 		lOpts = metav1.ListOptions{LabelSelector: *label}
 	}
-    
-    pods, err := clientset.CoreV1().Pods(*namespace).List(context.TODO(), lOpts)
-    if err != nil {
-        panic(err)
-    }
+
+	pods, err := clientset.CoreV1().Pods(*namespace).List(context.TODO(), lOpts)
+	if err != nil {
+		panic(err)
+	}
 
 	fetchedPodData := make(map[string]int32)
 	for _, p := range pods.Items {
@@ -77,7 +77,7 @@ func main() {
 			port = p.Spec.Containers[0].Ports[0].ContainerPort
 		} else {
 			// 3. Fallback to a common default (like 80) or skip
-			port = 80 
+			port = 80
 		}
 
 		fetchedPodData[p.Name] = port
@@ -108,22 +108,22 @@ func main() {
 	remotePort := fetchedPodData[selectedPod]
 
 	if *attachMode {
-        fmt.Printf("💻 Attaching to %s...\n", selectedPod)
-        executeRemoteShell(config, clientset, *namespace, selectedPod)
-        return
-    }
+		fmt.Printf("💻 Attaching to %s...\n", selectedPod)
+		executeRemoteShell(config, clientset, *namespace, selectedPod)
+		return
+	}
 
 	if *logMode {
-        fmt.Printf("📋 Streaming logs from %s...\n", selectedPod)
-        streamLogs(clientset, *namespace, selectedPod)
-        return
-    }
+		fmt.Printf("📋 Streaming logs from %s...\n", selectedPod)
+		streamLogs(clientset, *namespace, selectedPod)
+		return
+	}
 
 	// 5. Establish Tunnel
 	// Note: We use the *localPort pointer from the flags
 	ports := fmt.Sprintf("%d:%d", *localPort, remotePort)
 	fmt.Printf("🚀 Tunneling: http://localhost:%d -> %s:%d (Ctrl+C to stop)\n", *localPort, selectedPod, remotePort)
-	
+
 	establishPortForward(config, *namespace, selectedPod, ports)
 }
 
@@ -155,57 +155,57 @@ func establishPortForward(config *rest.Config, ns, podName, ports string) {
 }
 
 func executeRemoteShell(config *rest.Config, clientset *kubernetes.Clientset, ns, podName string) {
-    req := clientset.CoreV1().RESTClient().Post().
-        Resource("pods").
-        Name(podName).
-        Namespace(ns).
-        SubResource("exec")
+	req := clientset.CoreV1().RESTClient().Post().
+		Resource("pods").
+		Name(podName).
+		Namespace(ns).
+		SubResource("exec")
 
-    // Specify we want an interactive TTY
-    option := &corev1.PodExecOptions{
-        Command: []string{"/bin/sh"},
-        Stdin:   true,
-        Stdout:  true,
-        Stderr:  true,
-        TTY:     true,
-    }
-    req.VersionedParams(option, scheme.ParameterCodec)
+	// Specify we want an interactive TTY
+	option := &corev1.PodExecOptions{
+		Command: []string{"/bin/sh"},
+		Stdin:   true,
+		Stdout:  true,
+		Stderr:  true,
+		TTY:     true,
+	}
+	req.VersionedParams(option, scheme.ParameterCodec)
 
-    exec, _ := remotecommand.NewSPDYExecutor(config, "POST", req.URL())
+	exec, _ := remotecommand.NewSPDYExecutor(config, "POST", req.URL())
 
-    // Put the local terminal into Raw Mode to handle interactive input correctly
-    t := term.TTY{In: os.Stdin, Out: os.Stdout, Raw: true}
-    
-    // This starts the session and blocks until the user exits
-    _ = t.Safe(func() error {
-        return exec.StreamWithContext(context.Background(), remotecommand.StreamOptions{
-            Stdin:  os.Stdin,
-            Stdout: os.Stdout,
-            Stderr: os.Stderr,
-            Tty:    true,
-        })
-    })
+	// Put the local terminal into Raw Mode to handle interactive input correctly
+	t := term.TTY{In: os.Stdin, Out: os.Stdout, Raw: true}
+
+	// This starts the session and blocks until the user exits
+	_ = t.Safe(func() error {
+		return exec.StreamWithContext(context.Background(), remotecommand.StreamOptions{
+			Stdin:  os.Stdin,
+			Stdout: os.Stdout,
+			Stderr: os.Stderr,
+			Tty:    true,
+		})
+	})
 }
 
 func streamLogs(clientset *kubernetes.Clientset, ns, podName string) {
-    podLogOpts := &corev1.PodLogOptions{
-        Follow: true,
-        TailLines: int64Ptr(100), // Show last 100 lines before tailing
-    }
+	podLogOpts := &corev1.PodLogOptions{
+		Follow:    true,
+		TailLines: int64Ptr(100), // Show last 100 lines before tailing
+	}
 
-    req := clientset.CoreV1().Pods(ns).GetLogs(podName, podLogOpts)
-    podLogs, err := req.Stream(context.TODO())
-    if err != nil {
-        fmt.Printf("Error opening log stream: %v\n", err)
-        return
-    }
-    defer podLogs.Close()
+	req := clientset.CoreV1().Pods(ns).GetLogs(podName, podLogOpts)
+	podLogs, err := req.Stream(context.TODO())
+	if err != nil {
+		fmt.Printf("Error opening log stream: %v\n", err)
+		return
+	}
+	defer podLogs.Close()
 
-    // Stream logs directly to terminal output
-    _, err = io.Copy(os.Stdout, podLogs)
-    if err != nil {
-        fmt.Printf("Error during log streaming: %v\n", err)
-    }
+	// Stream logs directly to terminal output
+	_, err = io.Copy(os.Stdout, podLogs)
+	if err != nil {
+		fmt.Printf("Error during log streaming: %v\n", err)
+	}
 }
 
 func int64Ptr(i int64) *int64 { return &i }
