@@ -11,7 +11,6 @@ An interactive CLI for Kubernetes. Select a pod from a live list and port-forwar
 | **Scope** | Full cluster management dashboard | Port-forward, shell, and logs only |
 | **Workflow** | Keep the terminal window open, navigate the UI | Launch, do one thing, exit |
 | **Learning curve** | Keyboard shortcuts, views, filters, plugins | Arrow keys to pick a pod, one flag per action |
-| **Binary size** | ~60 MB | ~10 MB |
 | **Best for** | Deep cluster inspection and day-to-day ops | Quick access from a script, CI, or a fresh machine |
 
 If you already have k9s open, use it. KubePilot is for the moments when you just need to forward a port or tail some logs without context-switching into a full dashboard — or when you are on a machine where installing k9s feels like overkill.
