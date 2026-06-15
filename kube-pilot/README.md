@@ -20,8 +20,8 @@ If you already have k9s open, use it. KubePilot is for the moments when you just
 ### Linux
 
 ```bash
-VERSION=v1.0.0
-wget -qO- https://github.com/scensei-articles/kubepilot/releases/download/${VERSION}/kubepilot-linux-${VERSION}.tar.gz \
+VERSION=0.1.0
+wget -qO- https://github.com/Scensei-Optima/scensei-articles/releases/download/${VERSION}/kubepilot-linux-${VERSION}.tar.gz \
   | tar -xz
 sudo mv kubepilot /usr/local/bin/
 ```
@@ -29,8 +29,8 @@ sudo mv kubepilot /usr/local/bin/
 ### macOS
 
 ```bash
-VERSION=v1.0.0
-wget -qO- https://github.com/scensei-articles/kubepilot/releases/download/${VERSION}/kubepilot-macos-${VERSION}.tar.gz \
+VERSION=0.1.0
+wget -qO- https://github.com/Scensei-Optima/scensei-articles/releases/download/${VERSION}/kubepilot-macos-${VERSION}.tar.gz \
   | tar -xz
 sudo mv kubepilot /usr/local/bin/
 ```
@@ -38,9 +38,9 @@ sudo mv kubepilot /usr/local/bin/
 ### Windows
 
 ```powershell
-$VERSION = "v1.0.0"
+$VERSION = "0.1.0"
 Invoke-WebRequest `
-  -Uri "https://github.com/scensei-articles/kubepilot/releases/download/$VERSION/kubepilot-windows-$VERSION.zip" `
+  -Uri "https://github.com/Scensei-Optima/scensei-articles/releases/download/$VERSION/kubepilot-windows-$VERSION.zip" `
   -OutFile kubepilot.zip
 Expand-Archive kubepilot.zip -DestinationPath .
 ```
@@ -52,8 +52,8 @@ Move `kubepilot.exe` to a directory on your `PATH`.
 Requires Go 1.21+.
 
 ```bash
-git clone https://github.com/scensei-articles/kubepilot
-cd kubepilot/kube-pilot
+git clone https://github.com/Scensei-Optima/scensei-articles
+cd kube-pilot
 go build -o kubepilot .
 ```
 
@@ -116,7 +116,7 @@ Shows the last 100 lines then tails live. Press `Ctrl+C` to stop.
 ## Development
 
 ```bash
-git clone https://github.com/scensei-articles/kubepilot
+git clone https://github.com/Scensei-Optima/scensei-articles
 cd kubepilot/kube-pilot
 go test ./...
 ```
