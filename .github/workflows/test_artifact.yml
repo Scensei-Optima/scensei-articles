@@ -1,0 +1,70 @@
+name: Test downloading from release
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+
+jobs:
+  download-release:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+          - os: macos-latest
+            platform: macos
+          - os: windows-latest
+            platform: windows
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Get latest release tag
+        id: release
+        shell: bash
+        run: |
+          tag=$(gh api repos/Scensei-Optima/scensei-articles/releases/latest --jq '.tag_name')
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Download and extract (Linux)
+        if: matrix.platform == 'linux'
+        run: |
+          VERSION=${{ steps.release.outputs.tag }}
+          wget -qO- https://github.com/Scensei-Optima/scensei-articles/releases/download/${VERSION}/kubepilot-linux-${VERSION}.tar.gz \
+            | tar -xz
+
+      - name: Download and extract (macOS)
+        if: matrix.platform == 'macos'
+        run: |
+          VERSION=${{ steps.release.outputs.tag }}
+          wget -qO- https://github.com/Scensei-Optima/scensei-articles/releases/download/${VERSION}/kubepilot-macos-${VERSION}.tar.gz \
+            | tar -xz
+
+      - name: Download and extract (Windows)
+        if: matrix.platform == 'windows'
+        shell: pwsh
+        run: |
+          $VERSION = "${{ steps.release.outputs.tag }}"
+          Invoke-WebRequest `
+            -Uri "https://github.com/Scensei-Optima/scensei-articles/releases/download/$VERSION/kubepilot-windows-$VERSION.zip" `
+            -OutFile kubepilot.zip
+          Expand-Archive kubepilot.zip -DestinationPath .
+
+      - name: Verify version (Linux/macOS)
+        if: matrix.platform != 'windows'
+        run: |
+          got=$(./kubepilot -version)
+          expected="${{ steps.release.outputs.tag }}"
+          [ "$got" = "$expected" ] || { echo "Version mismatch: got '$got', expected '$expected'"; exit 1; }
+
+      - name: Verify version (Windows)
+        if: matrix.platform == 'windows'
+        shell: pwsh
+        run: |
+          $got = (& .\kubepilot.exe -version).Trim()
+          $expected = "${{ steps.release.outputs.tag }}"
+          if ($got -ne $expected) { Write-Error "Version mismatch: got '$got', expected '$expected'"; exit 1 }
