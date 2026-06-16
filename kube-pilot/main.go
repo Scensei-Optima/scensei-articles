@@ -9,6 +9,8 @@ import (
 	"github.com/scensei-articles/kubepilot/internal/ui"
 )
 
+const version = "0.1.0"
+
 func main() {
 	localPort := flag.Int("local", 8080, "The local port to bind to")
 	namespace := flag.String("n", "default", "The Kubernetes namespace")
@@ -16,8 +18,14 @@ func main() {
 	remotePortFlag := flag.Int("remote", 0, "The remote port (overrides pod spec)")
 	attachMode := flag.Bool("attach", false, "Execute an interactive shell in the pod instead of port-forwarding")
 	logMode := flag.Bool("logs", false, "Stream logs from the pod")
+	versionMode := flag.Bool("version", false, "Display version and exit")
 
 	flag.Parse()
+
+	if *versionMode {
+		fmt.Println(version)
+		os.Exit(0)
+	}
 
 	if *attachMode && *logMode {
 		fmt.Fprintln(os.Stderr, "Error: cannot use -attach and -logs at the same time.")
