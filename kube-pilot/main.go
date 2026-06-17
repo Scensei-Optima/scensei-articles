@@ -9,7 +9,7 @@ import (
 	"github.com/scensei-articles/kubepilot/internal/ui"
 )
 
-const version = "0.1.1"
+const version = "0.2.0"
 
 func main() {
 	localPort := flag.Int("local", 8080, "The local port to bind to")
