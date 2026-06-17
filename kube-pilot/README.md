@@ -80,6 +80,7 @@ Run without flags to list pods in the `default` namespace and start port-forward
 | `-remote <port>` | | Override the remote port (skips auto-detection from pod spec) |
 | `-attach` | | Open an interactive shell in the selected pod |
 | `-logs` | | Stream logs from the selected pod |
+| `-tail <n>` | `100` | Number of recent lines shown before tailing live (only with `-logs`) |
 
 `-attach` and `-logs` are mutually exclusive.
 
