@@ -34,7 +34,7 @@ func TestStreamLogs_ReturnsNilOnCleanEOF(t *testing.T) {
 	})
 	defer teardown()
 
-	if err := c.StreamLogs("default", "test-pod"); err != nil {
+	if err := c.StreamLogs("default", "test-pod", 100); err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 }
@@ -45,7 +45,7 @@ func TestStreamLogs_ReturnsErrorOnServerFailure(t *testing.T) {
 	})
 	defer teardown()
 
-	if err := c.StreamLogs("default", "test-pod"); err == nil {
+	if err := c.StreamLogs("default", "test-pod", 100); err == nil {
 		t.Error("expected error from 500 response, got nil")
 	}
 }
@@ -56,7 +56,7 @@ func TestStreamLogs_ReturnsErrorOnUnauthorized(t *testing.T) {
 	})
 	defer teardown()
 
-	if err := c.StreamLogs("default", "test-pod"); err == nil {
+	if err := c.StreamLogs("default", "test-pod", 100); err == nil {
 		t.Error("expected error from 401 response, got nil")
 	}
 }

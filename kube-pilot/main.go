@@ -9,7 +9,7 @@ import (
 	"github.com/scensei-articles/kubepilot/internal/ui"
 )
 
-const version = "0.1.0"
+const version = "0.2.0"
 
 func main() {
 	localPort := flag.Int("local", 8080, "The local port to bind to")
@@ -18,6 +18,7 @@ func main() {
 	remotePortFlag := flag.Int("remote", 0, "The remote port (overrides pod spec)")
 	attachMode := flag.Bool("attach", false, "Execute an interactive shell in the pod instead of port-forwarding")
 	logMode := flag.Bool("logs", false, "Stream logs from the pod")
+	tailLines := flag.Int64("tail", 100, "Number of recent log lines to show before tailing (only used with -logs)")
 	versionMode := flag.Bool("version", false, "Display version and exit")
 
 	flag.Parse()
@@ -82,7 +83,7 @@ func main() {
 
 	case *logMode:
 		fmt.Printf("📋 Streaming logs from %s...\n", selectedPod)
-		if err := client.StreamLogs(*namespace, selectedPod); err != nil {
+		if err := client.StreamLogs(*namespace, selectedPod, *tailLines); err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
