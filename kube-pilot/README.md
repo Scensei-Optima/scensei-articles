@@ -20,7 +20,7 @@ If you already have k9s open, use it. KubePilot is for the moments when you just
 ### Linux
 
 ```bash
-VERSION=0.2.0
+VERSION=0.3.0
 wget -qO- https://github.com/Scensei-Optima/scensei-articles/releases/download/${VERSION}/kubepilot-linux-${VERSION}.tar.gz \
   | tar -xz
 sudo mv kubepilot /usr/local/bin/
@@ -29,7 +29,7 @@ sudo mv kubepilot /usr/local/bin/
 ### macOS
 
 ```bash
-VERSION=0.2.0
+VERSION=0.3.0
 wget -qO- https://github.com/Scensei-Optima/scensei-articles/releases/download/${VERSION}/kubepilot-macos-${VERSION}.tar.gz \
   | tar -xz
 sudo mv kubepilot /usr/local/bin/
@@ -38,7 +38,7 @@ sudo mv kubepilot /usr/local/bin/
 ### Windows
 
 ```powershell
-$VERSION = "0.2.0"
+$VERSION = "0.3.0"
 Invoke-WebRequest `
   -Uri "https://github.com/Scensei-Optima/scensei-articles/releases/download/$VERSION/kubepilot-windows-$VERSION.zip" `
   -OutFile kubepilot.zip
@@ -68,13 +68,45 @@ go build -o kubepilot .
 kubepilot [flags]
 ```
 
-Run without flags to list pods in the `default` namespace and start port-forwarding the selected one.
+Run without flags to list pods in the `scensei` namespace and start port-forwarding the selected one.
+
+
+```terminaloutput
+$ ./kubepilot
+
+...
+
+Searching in namespace: scensei
+Use the arrow keys to navigate: ↓ ↑ → ← 
+? Select a Pod to Port-Forward to: 
+  ▸ portal-664b4d8fbf-55q76
+    reporter-6cf554bdd-x5lgb
+    scheduler-d4969dfdd-kz7sj
+    cesium-8fdb86c78-nw8r9
+```
+
+```terminaloutput
+$ ./kubepilot -logs
+
+...
+
+Searching in namespace: scensei
+✔ cesium-8fdb86c78-nw8r9
+📋 Streaming logs from cesium-8fdb86c78-nw8r9...
+[2026-06-19 11:53:38 +0000] [1] [INFO] Starting gunicorn 23.0.0
+[2026-06-19 11:53:38 +0000] [1] [INFO] Listening at: http://0.0.0.0:8020 (1)
+[2026-06-19 11:53:38 +0000] [1] [INFO] Using worker: gthread
+[2026-06-19 11:53:38 +0000] [7] [INFO] Booting worker with pid: 7
+[2026-06-19 11:53:38 +0000] [8] [INFO] Booting worker with pid: 8
+[2026-06-19 11:53:38 +0000] [9] [INFO] Booting worker with pid: 9
+[2026-06-19 11:53:38 +0000] [10] [INFO] Booting worker with pid: 10
+```
 
 ### Flags
 
 | Flag | Default | Description |
 |---|---|---|
-| `-n <namespace>` | `default` | Namespace to search |
+| `-n <namespace>` | `scensei` | Namespace to search |
 | `-l <selector>` | | Label selector, e.g. `app=web` |
 | `-local <port>` | `8080` | Local port to bind |
 | `-remote <port>` | | Override the remote port (skips auto-detection from pod spec) |
@@ -87,7 +119,7 @@ Run without flags to list pods in the `default` namespace and start port-forward
 ### Port forwarding
 
 ```bash
-# Default namespace, port 8080
+# Scensei namespace, port 8080
 kubepilot
 
 # Specific namespace and local port
@@ -100,7 +132,7 @@ kubepilot -n production -l app=api
 ### Interactive shell
 
 ```bash
-kubepilot -n staging -attach
+kubepilot -attach
 ```
 
 Drops into `/bin/sh` inside the selected pod. Press `Ctrl+C` or type `exit` to detach.
@@ -108,8 +140,8 @@ Drops into `/bin/sh` inside the selected pod. Press `Ctrl+C` or type `exit` to d
 ### Log streaming
 
 ```bash
-kubepilot -n production -logs
-kubepilot -n production -l app=worker -logs
+kubepilot -logs
+kubepilot -l app=worker -logs
 ```
 
 Shows the last 100 lines then tails live. Press `Ctrl+C` to stop.
