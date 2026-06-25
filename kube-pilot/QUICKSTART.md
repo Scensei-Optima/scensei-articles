@@ -22,20 +22,22 @@ kubectl wait --for=condition=Ready node --all --timeout=60s
 
 ## 2. Deploy some pods
 
-Start two pods that emit a log line every two seconds:
+Create the `scensei` namespace and start two pods that emit a log line every two seconds:
 
 ```bash
-kubectl run app-one --image=busybox --restart=Never \
+kubectl create namespace scensei
+
+kubectl run app-one -n scensei --image=busybox --restart=Never \
   -- sh -c 'while true; do echo "[app-one] $(date)"; sleep 2; done'
 
-kubectl run app-two --image=busybox --restart=Never \
+kubectl run app-two -n scensei --image=busybox --restart=Never \
   -- sh -c 'while true; do echo "[app-two] $(date)"; sleep 2; done'
 ```
 
 Confirm they are running:
 
 ```bash
-kubectl get pods
+kubectl get pods -n scensei
 ```
 
 ```

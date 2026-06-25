@@ -9,11 +9,11 @@ import (
 	"github.com/scensei-articles/kubepilot/internal/ui"
 )
 
-const version = "0.2.0"
+const version = "0.3.0"
 
 func main() {
 	localPort := flag.Int("local", 8080, "The local port to bind to")
-	namespace := flag.String("n", "default", "The Kubernetes namespace")
+	namespace := flag.String("n", "scensei", "The Kubernetes namespace")
 	label := flag.String("l", "", "The label selector for pods")
 	remotePortFlag := flag.Int("remote", 0, "The remote port (overrides pod spec)")
 	attachMode := flag.Bool("attach", false, "Execute an interactive shell in the pod instead of port-forwarding")
