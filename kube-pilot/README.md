@@ -2,6 +2,8 @@
 
 An interactive CLI for Kubernetes. Select a pod from a live list and port-forward it, open a shell, or tail its logs — all without writing a single `kubectl` command.
 
+![KubePilot](KubePilot.gif)
+
 ## How does it compare to k9s?
 
 [k9s](https://k9scli.io) is excellent — if you work with Kubernetes daily it is hard to beat. KubePilot is not trying to replace it. They solve different problems.
