@@ -10,7 +10,7 @@ KubePilot is a standalone tool built and maintained by [Scensei](https://www.sce
 
 **Quick install (Linux)**
 ```bash
-VERSION=0.3.0
+VERSION=0.5.0
 wget -qO- https://github.com/Scensei-Optima/scensei-articles/releases/download/${VERSION}/kubepilot-linux-${VERSION}.tar.gz | tar -xz
 sudo mv kubepilot /usr/local/bin/
 ```
