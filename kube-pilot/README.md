@@ -22,7 +22,7 @@ If you already have k9s open, use it. KubePilot is for the moments when you just
 ### Linux
 
 ```bash
-VERSION=0.4.0
+VERSION=0.5.0
 wget -qO- https://github.com/Scensei-Optima/scensei-articles/releases/download/${VERSION}/kubepilot-linux-${VERSION}.tar.gz \
   | tar -xz
 sudo mv kubepilot /usr/local/bin/
@@ -31,7 +31,7 @@ sudo mv kubepilot /usr/local/bin/
 ### macOS
 
 ```bash
-VERSION=0.4.0
+VERSION=0.5.0
 wget -qO- https://github.com/Scensei-Optima/scensei-articles/releases/download/${VERSION}/kubepilot-macos-${VERSION}.tar.gz \
   | tar -xz
 sudo mv kubepilot /usr/local/bin/
@@ -40,7 +40,7 @@ sudo mv kubepilot /usr/local/bin/
 ### Windows
 
 ```powershell
-$VERSION = "0.4.0"
+$VERSION = "0.5.0"
 Invoke-WebRequest `
   -Uri "https://github.com/Scensei-Optima/scensei-articles/releases/download/$VERSION/kubepilot-windows-$VERSION.zip" `
   -OutFile kubepilot.zip
@@ -158,6 +158,19 @@ kubepilot -info -json
 ```
 
 Prints a snapshot of the selected pod: node it runs on, container image and tag, readiness state, environment variables, and attached volumes. Use `-json` to get machine-readable output suitable for piping or attaching to a support ticket.
+
+### Changing default namespace
+
+Namespace to use by default is `scensei`. This can be changed in two ways:
+
+- Explicitly passing the namespace name to the `kubepilot` command ( `kubepilot -n <your namespace>` )
+- Setting environment variable
+
+```bash
+export KUBEPILOT_DEFAULT_NAMESPACE="<your namespace>"
+
+kubepilot  # will now look for pods in <your namespace>
+```
 
 ## Development
 
