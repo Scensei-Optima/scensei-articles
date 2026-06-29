@@ -1,6 +1,6 @@
 # KubePilot
 
-An interactive CLI for Kubernetes. Select a pod from a live list and port-forward it, open a shell, or tail its logs — all without writing a single `kubectl` command.
+An interactive CLI for Kubernetes. Select a pod from a live list and port-forward it, open a shell, tail its logs, or inspect its diagnostics — all without writing a single `kubectl` command.
 
 ![KubePilot](KubePilot.gif)
 
@@ -10,7 +10,7 @@ An interactive CLI for Kubernetes. Select a pod from a live list and port-forwar
 
 | | k9s | KubePilot |
 |---|---|---|
-| **Scope** | Full cluster management dashboard | Port-forward, shell, and logs only |
+| **Scope** | Full cluster management dashboard | Port-forward, shell, logs, and pod diagnostics |
 | **Workflow** | Keep the terminal window open, navigate the UI | Launch, do one thing, exit |
 | **Learning curve** | Keyboard shortcuts, views, filters, plugins | Arrow keys to pick a pod, one flag per action |
 | **Best for** | Deep cluster inspection and day-to-day ops | Quick access from a script, CI, or a fresh machine |
@@ -158,6 +158,27 @@ kubepilot -info -json
 ```
 
 Prints a snapshot of the selected pod: node it runs on, container image and tag, readiness state, environment variables, and attached volumes. Use `-json` to get machine-readable output suitable for piping or attaching to a support ticket.
+
+The output includes warn-level events only:
+
+```bash
+$ kubectl run nginx --image none -n staging  # run a pod with invalid image name
+pod/nginx created
+```
+
+After running `kubectl -info` and choosing the `nginx` pod:
+
+```terminaloutput
+...                                                                                                                                                                                           
+Image: none
+Ready: false
+...
+
+--- Warning Events ---
+  [x2] Failed: Failed to pull image "none": failed to pull and unpack image "docker.io/library/none:latest": failed to resolve reference "docker.io/library/none:latest": pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed
+  [x2] Failed: Error: ErrImagePull
+  [x2] Failed: Error: ImagePullBackOff
+```
 
 ### Changing default namespace
 
