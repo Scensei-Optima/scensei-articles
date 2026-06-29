@@ -8,6 +8,7 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/scensei-articles/kubepilot/internal/k8s"
 )
@@ -155,6 +156,58 @@ func TestGetPodDiagnostics_EnvValueFrom(t *testing.T) {
 	}
 	if env[2].Value != "hello" {
 		t.Errorf("plain value: got %q", env[2].Value)
+	}
+}
+
+func makeEvent(podName, ns, reason, message, eventType string, count int32) *corev1.Event {
+	return &corev1.Event{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      podName + "-" + reason + "-event",
+			Namespace: ns,
+		},
+		InvolvedObject: corev1.ObjectReference{Name: podName},
+		Reason:         reason,
+		Message:        message,
+		Type:           eventType,
+		Count:          count,
+	}
+}
+
+func TestGetPodDiagnostics_WarningEventsIncluded(t *testing.T) {
+	objects := []runtime.Object{
+		makeDiagPod(),
+		makeEvent("web-abc", "scensei", "Failed", "Back-off pulling image", corev1.EventTypeWarning, 3),
+		makeEvent("web-abc", "scensei", "Pulled", "Successfully pulled image", corev1.EventTypeNormal, 1),
+		makeEvent("other-pod", "scensei", "Failed", "unrelated", corev1.EventTypeWarning, 1),
+	}
+	c := newTestClient(t, objects...)
+
+	diag, err := c.GetPodDiagnostics("scensei", "web-abc")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(diag.Events) != 1 {
+		t.Fatalf("expected 1 warning event, got %d: %+v", len(diag.Events), diag.Events)
+	}
+	e := diag.Events[0]
+	if e.Reason != "Failed" {
+		t.Errorf("reason: got %q, want %q", e.Reason, "Failed")
+	}
+	if e.Count != 3 {
+		t.Errorf("count: got %d, want 3", e.Count)
+	}
+}
+
+func TestGetPodDiagnostics_NoEventsOnHealthyPod(t *testing.T) {
+	c := newTestClient(t, makeDiagPod())
+
+	diag, err := c.GetPodDiagnostics("scensei", "web-abc")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(diag.Events) != 0 {
+		t.Errorf("expected no events, got %d", len(diag.Events))
 	}
 }
 

@@ -26,6 +26,12 @@ type VolumeDiag struct {
 	Type string `json:"type"`
 }
 
+type EventDiag struct {
+	Reason  string `json:"reason"`
+	Message string `json:"message"`
+	Count   int32  `json:"count"`
+}
+
 type PodDiagnostics struct {
 	Pod        string          `json:"pod"`
 	Namespace  string          `json:"namespace"`
@@ -34,6 +40,7 @@ type PodDiagnostics struct {
 	Ready      bool            `json:"ready"`
 	Containers []ContainerDiag `json:"containers"`
 	Volumes    []VolumeDiag    `json:"volumes"`
+	Events     []EventDiag     `json:"events"`
 }
 
 func (c *Client) GetPodDiagnostics(ns, podName string) (*PodDiagnostics, error) {
@@ -72,6 +79,20 @@ func (c *Client) GetPodDiagnostics(ns, podName string) (*PodDiagnostics, error) 
 			Name: v.Name,
 			Type: volumeType(v),
 		})
+	}
+
+	events, err := c.Clientset.CoreV1().Events(ns).List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("list events for %s: %w", podName, err)
+	}
+	for _, e := range events.Items {
+		if e.InvolvedObject.Name == podName && e.Type == corev1.EventTypeWarning {
+			diag.Events = append(diag.Events, EventDiag{
+				Reason:  e.Reason,
+				Message: e.Message,
+				Count:   e.Count,
+			})
+		}
 	}
 
 	return diag, nil
@@ -146,6 +167,13 @@ func (d *PodDiagnostics) PrintText(w io.Writer) {
 		fmt.Fprintln(w, "\n--- Volumes ---")
 		for _, v := range d.Volumes {
 			fmt.Fprintf(w, "  %s (%s)\n", v.Name, v.Type)
+		}
+	}
+
+	if len(d.Events) > 0 {
+		fmt.Fprintln(w, "\n--- Warning Events ---")
+		for _, e := range d.Events {
+			fmt.Fprintf(w, "  [x%d] %s: %s\n", e.Count, e.Reason, e.Message)
 		}
 	}
 }

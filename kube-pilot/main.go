@@ -10,7 +10,7 @@ import (
 	"github.com/scensei-articles/kubepilot/internal/ui"
 )
 
-const version = "0.5.0"
+const version = "0.5.1"
 
 const defaultNsEnvKey = "KUBEPILOT_DEFAULT_NAMESPACE"
 
