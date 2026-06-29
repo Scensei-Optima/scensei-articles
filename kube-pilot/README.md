@@ -22,7 +22,7 @@ If you already have k9s open, use it. KubePilot is for the moments when you just
 ### Linux
 
 ```bash
-VERSION=0.3.0
+VERSION=0.4.0
 wget -qO- https://github.com/Scensei-Optima/scensei-articles/releases/download/${VERSION}/kubepilot-linux-${VERSION}.tar.gz \
   | tar -xz
 sudo mv kubepilot /usr/local/bin/
@@ -31,7 +31,7 @@ sudo mv kubepilot /usr/local/bin/
 ### macOS
 
 ```bash
-VERSION=0.3.0
+VERSION=0.4.0
 wget -qO- https://github.com/Scensei-Optima/scensei-articles/releases/download/${VERSION}/kubepilot-macos-${VERSION}.tar.gz \
   | tar -xz
 sudo mv kubepilot /usr/local/bin/
@@ -40,7 +40,7 @@ sudo mv kubepilot /usr/local/bin/
 ### Windows
 
 ```powershell
-$VERSION = "0.3.0"
+$VERSION = "0.4.0"
 Invoke-WebRequest `
   -Uri "https://github.com/Scensei-Optima/scensei-articles/releases/download/$VERSION/kubepilot-windows-$VERSION.zip" `
   -OutFile kubepilot.zip
