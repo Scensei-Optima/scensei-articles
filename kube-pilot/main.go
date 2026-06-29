@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -19,6 +20,8 @@ func main() {
 	attachMode := flag.Bool("attach", false, "Execute an interactive shell in the pod instead of port-forwarding")
 	logMode := flag.Bool("logs", false, "Stream logs from the pod")
 	tailLines := flag.Int64("tail", 100, "Number of recent log lines to show before tailing (only used with -logs)")
+	infoMode := flag.Bool("info", false, "Print diagnostic info for the selected pod")
+	jsonOutput := flag.Bool("json", false, "Output as JSON (only used with -info)")
 	versionMode := flag.Bool("version", false, "Display version and exit")
 
 	flag.Parse()
@@ -28,8 +31,14 @@ func main() {
 		os.Exit(0)
 	}
 
-	if *attachMode && *logMode {
-		fmt.Fprintln(os.Stderr, "Error: cannot use -attach and -logs at the same time.")
+	modeCount := 0
+	for _, m := range []bool{*attachMode, *logMode, *infoMode} {
+		if m {
+			modeCount++
+		}
+	}
+	if modeCount > 1 {
+		fmt.Fprintln(os.Stderr, "Error: -attach, -logs, and -info are mutually exclusive.")
 		os.Exit(1)
 	}
 
@@ -63,6 +72,8 @@ func main() {
 		selectorLabel = "Select a Pod to Attach to"
 	case *logMode:
 		selectorLabel = "Select a Pod to Stream Logs from"
+	case *infoMode:
+		selectorLabel = "Select a Pod to Inspect"
 	default:
 		selectorLabel = "Select a Pod to Port-Forward to"
 	}
@@ -86,6 +97,23 @@ func main() {
 		if err := client.StreamLogs(*namespace, selectedPod, *tailLines); err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
+		}
+
+	case *infoMode:
+		diag, err := client.GetPodDiagnostics(*namespace, selectedPod)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+		if *jsonOutput {
+			enc := json.NewEncoder(os.Stdout)
+			enc.SetIndent("", "  ")
+			if err := enc.Encode(diag); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+		} else {
+			diag.PrintText(os.Stdout)
 		}
 
 	default:

@@ -115,8 +115,10 @@ Searching in namespace: scensei
 | `-attach` | | Open an interactive shell in the selected pod |
 | `-logs` | | Stream logs from the selected pod |
 | `-tail <n>` | `100` | Number of recent lines shown before tailing live (only with `-logs`) |
+| `-info` | | Print diagnostic info for the selected pod |
+| `-json` | | Output diagnostics as JSON (only with `-info`) |
 
-`-attach` and `-logs` are mutually exclusive.
+`-attach`, `-logs`, and `-info` are mutually exclusive.
 
 ### Port forwarding
 
@@ -147,6 +149,15 @@ kubepilot -l app=worker -logs
 ```
 
 Shows the last 100 lines then tails live. Press `Ctrl+C` to stop.
+
+### Pod diagnostics
+
+```bash
+kubepilot -info
+kubepilot -info -json
+```
+
+Prints a snapshot of the selected pod: node it runs on, container image and tag, readiness state, environment variables, and attached volumes. Use `-json` to get machine-readable output suitable for piping or attaching to a support ticket.
 
 ## Development
 
