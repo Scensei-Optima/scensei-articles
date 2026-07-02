@@ -15,7 +15,7 @@ import (
 func newTestClient(t *testing.T, objects ...runtime.Object) *k8s.Client {
 	t.Helper()
 	return &k8s.Client{
-		Clientset: fake.NewSimpleClientset(objects...),
+		Clientset: fake.NewClientset(objects...),
 		Config:    &rest.Config{Host: "http://fake"},
 	}
 }

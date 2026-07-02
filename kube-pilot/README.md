@@ -61,7 +61,7 @@ go build -o kubepilot .
 
 ## Requirements
 
-- A valid kubeconfig at `~/.kube/config`
+- A valid kubeconfig — read from `$KUBECONFIG` if set, otherwise `~/.kube/config`
 - Network access to the Kubernetes API server
 
 ## Usage

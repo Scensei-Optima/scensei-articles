@@ -17,13 +17,29 @@ type Client struct {
 	Config    *rest.Config
 }
 
-func NewClient() (*Client, error) {
+const kubeconfigEnv = "KUBECONFIG"
+
+func getDefaultKubeconfigPath() (string, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return nil, fmt.Errorf("could not determine home directory: %w", err)
+		return "", fmt.Errorf("could not determine home directory: %w", err)
 	}
 
-	kubeconfig := filepath.Join(home, ".kube", "config")
+	return filepath.Join(home, ".kube", "config"), nil
+}
+
+func getKubeConfigPath() (string, error) {
+	if kubeconfig, ok := os.LookupEnv(kubeconfigEnv); ok {
+		return kubeconfig, nil
+	}
+	return getDefaultKubeconfigPath()
+}
+
+func NewClient() (*Client, error) {
+	kubeconfig, err := getKubeConfigPath()
+	if err != nil {
+		return nil, fmt.Errorf("failed to obtain kubeconfig file path: %w", err)
+	}
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load kubeconfig from %s: %w", kubeconfig, err)
