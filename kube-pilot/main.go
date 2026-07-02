@@ -10,7 +10,7 @@ import (
 	"github.com/scensei-articles/kubepilot/internal/ui"
 )
 
-const version = "0.5.1"
+const version = "0.5.2"
 
 const defaultNsEnvKey = "KUBEPILOT_DEFAULT_NAMESPACE"
 
@@ -34,6 +34,12 @@ func main() {
 	versionMode := flag.Bool("version", false, "Display version and exit")
 
 	flag.Parse()
+
+	if args := flag.Args(); len(args) > 0 {
+		fmt.Fprintf(os.Stderr, "Error: unexpected argument(s): %v\n", args)
+		fmt.Fprintf(os.Stderr, "Run with -help to see available flags.\n")
+		os.Exit(1)
+	}
 
 	if *versionMode {
 		fmt.Println(version)
